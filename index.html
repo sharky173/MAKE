@@ -1,0 +1,2493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>MAKE</title>
+
+<style>
+:root{
+  --bg:#f5f1e9;
+  --card:#fffdf9;
+  --ink:#181715;
+  --muted:#777169;
+  --line:#ddd7cc;
+  --soft:#ebe5da;
+  --accent:#8b735c;
+  --shadow:0 20px 60px rgba(35,30,20,.08);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter,Arial,Helvetica,sans-serif;
+}
+
+button,
+input,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(.98);
+}
+
+.app{
+  min-height:100vh;
+}
+
+/* ================= HEADER ================= */
+
+header{
+  height:82px;
+  padding:0 5vw;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:-.07em;
+  cursor:pointer;
+}
+
+.header-right{
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* ================= MAIN ================= */
+
+main{
+  width:min(1150px,90vw);
+  margin:auto;
+}
+
+.screen{
+  min-height:calc(100vh - 82px);
+  padding:55px 0 80px;
+  animation:fade .25s ease;
+}
+
+@keyframes fade{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+/* ================= HOME ================= */
+
+.home{
+  max-width:1050px;
+  margin:auto;
+}
+
+.home-top{
+  text-align:center;
+  padding:35px 0 45px;
+}
+
+.eyebrow{
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-size:11px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:18px;
+}
+
+h1{
+  font-size:clamp(52px,8vw,92px);
+  line-height:.92;
+  letter-spacing:-.075em;
+  margin:0;
+}
+
+.home-sub{
+  max-width:620px;
+  margin:28px auto 0;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.55;
+}
+
+/* ================= OPTION GRID ================= */
+
+.option-heading{
+  text-align:center;
+  margin-bottom:22px;
+}
+
+.option-heading h2{
+  margin:0;
+  font-size:28px;
+  letter-spacing:-.04em;
+}
+
+.option-heading p{
+  margin:8px 0 0;
+  color:var(--muted);
+}
+
+.make-options{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.make-option{
+  min-height:190px;
+  padding:25px;
+  text-align:left;
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:22px;
+  box-shadow:0 8px 30px rgba(30,25,18,.03);
+  transition:.2s;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.make-option:hover{
+  transform:translateY(-3px);
+  border-color:#aaa;
+  box-shadow:var(--shadow);
+}
+
+.option-icon{
+  font-size:35px;
+}
+
+.option-title{
+  font-size:21px;
+  font-weight:800;
+  letter-spacing:-.03em;
+  margin-top:20px;
+}
+
+.option-description{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45;
+  margin-top:7px;
+}
+
+.option-arrow{
+  align-self:flex-end;
+  font-size:22px;
+  margin-top:18px;
+}
+
+/* ================= GENERAL ================= */
+
+.box{
+  max-width:760px;
+  margin:auto;
+}
+
+.center{
+  text-align:center;
+}
+
+h2{
+  font-size:clamp(38px,6vw,62px);
+  line-height:.98;
+  letter-spacing:-.065em;
+  margin:0 0 20px;
+}
+
+.lead{
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.6;
+  max-width:650px;
+}
+
+.primary{
+  border:0;
+  background:var(--ink);
+  color:white;
+  padding:15px 21px;
+  border-radius:13px;
+  font-weight:750;
+}
+
+.secondary{
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  padding:14px 20px;
+  border-radius:13px;
+  font-weight:700;
+}
+
+.link{
+  border:0;
+  background:none;
+  color:var(--muted);
+  padding:12px;
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+
+/* ================= PROJECT ================= */
+
+.project-card{
+  margin-top:28px;
+  padding:28px;
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:22px;
+}
+
+.project-theme{
+  color:var(--muted);
+  margin-top:8px;
+}
+
+/* ================= STEPS ================= */
+
+.step{
+  max-width:760px;
+  margin:auto;
+}
+
+.stepbar{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:38px;
+}
+
+.step p{
+  font-size:19px;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.check-box{
+  margin-top:28px;
+  padding:22px;
+  border-radius:18px;
+  background:var(--card);
+  border:1px solid var(--line);
+}
+
+.check-label{
+  font-weight:800;
+  margin-bottom:7px;
+}
+
+/* ================= FASHION ================= */
+
+.fashion-box{
+  max-width:850px;
+  margin:auto;
+}
+
+.event-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+
+.event{
+  padding:20px;
+  text-align:left;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:17px;
+  font-weight:750;
+  transition:.2s;
+}
+
+.event:hover{
+  border-color:#999;
+  transform:translateY(-2px);
+}
+
+.upload-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:14px;
+  margin-top:25px;
+}
+
+.preview{
+  position:relative;
+  aspect-ratio:1;
+  overflow:hidden;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:var(--card);
+}
+
+.preview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.preview-remove{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:31px;
+  height:31px;
+  border:0;
+  border-radius:50%;
+  background:var(--ink);
+  color:#fff;
+  font-size:18px;
+}
+
+.add-photo{
+  min-height:170px;
+  margin-top:18px;
+  display:grid;
+  place-items:center;
+  border:1px dashed #aaa;
+  border-radius:19px;
+  background:var(--card);
+  font-weight:750;
+}
+
+textarea{
+  width:100%;
+  min-height:110px;
+  margin-top:20px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:var(--card);
+  resize:vertical;
+  outline:none;
+}
+
+textarea:focus{
+  border-color:#999;
+}
+
+/* ================= RESULT ================= */
+
+.verdict{
+  margin-top:28px;
+  padding:28px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:23px;
+}
+
+.verdict h3{
+  font-size:25px;
+  margin:0 0 15px;
+}
+
+.verdict p{
+  color:var(--muted);
+  line-height:1.65;
+}
+
+.verdict ul{
+  color:var(--muted);
+  line-height:1.7;
+}
+
+.tweak{
+  margin-top:20px;
+  padding:17px;
+  background:var(--soft);
+  border-radius:15px;
+  line-height:1.5;
+}
+
+/* ================= COMPLETE ================= */
+
+.complete{
+  text-align:center;
+  max-width:800px;
+  margin:auto;
+}
+
+.celebrate{
+  font-size:100px;
+  padding:45px;
+  margin:30px auto;
+  width:min(550px,100%);
+  border-radius:30px;
+  background:linear-gradient(
+    145deg,
+    #d8c4aa,
+    #f0dfc7,
+    #9b8067
+  );
+  box-shadow:var(--shadow);
+}
+
+/* ================= LOADING ================= */
+
+.loading{
+  text-align:center;
+  padding-top:100px;
+}
+
+.spinner{
+  width:42px;
+  height:42px;
+  border:4px solid var(--line);
+  border-top-color:var(--ink);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin:25px auto;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:800px){
+
+  .make-options{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+@media(max-width:600px){
+
+  header{
+    height:68px;
+  }
+
+  .screen{
+    padding-top:30px;
+  }
+
+  .make-options{
+    grid-template-columns:1fr;
+  }
+
+  .make-option{
+    min-height:145px;
+  }
+
+  .event-grid{
+    grid-template-columns:1fr;
+  }
+
+  h1{
+    font-size:54px;
+  }
+
+  h2{
+    font-size:43px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="logo" onclick="goHome()">MAKE</div>
+  <div class="header-right" id="headerText"></div>
+</header>
+
+<main>
+  <div id="app"></div>
+</main>
+
+</div>
+
+<script>
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+  currentPage:"home",
+
+  idea:"",
+  aiProject:null,
+
+  fashionEvent:"",
+  fashionImages:[],
+  fashionQuestion:"",
+  fashionResult:null
+};
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+function saveState(){
+
+  try{
+    localStorage.setItem(
+      "MAKE_STATE",
+      JSON.stringify(state)
+    );
+  }catch(error){
+    console.log("Could not save state",error);
+  }
+
+}
+
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem("MAKE_STATE");
+
+    if(saved){
+
+      const data =
+        JSON.parse(saved);
+
+      if(data && typeof data === "object"){
+        Object.assign(state,data);
+      }
+
+    }
+
+  }catch(error){
+
+    console.log("Could not load state",error);
+
+  }
+
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+function setPage(page){
+
+  state.currentPage = page;
+
+  try{
+    sessionStorage.setItem(
+      "MAKE_PAGE",
+      page
+    );
+  }catch(error){}
+
+  saveState();
+
+}
+
+
+function savedPage(){
+
+  try{
+
+    return (
+      sessionStorage.getItem("MAKE_PAGE") ||
+      state.currentPage ||
+      "home"
+    );
+
+  }catch(error){
+
+    return state.currentPage || "home";
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(content){
+
+  document.getElementById("app").innerHTML =
+    `<div class="screen">${content}</div>`;
+
+}
+
+
+function header(text=""){
+  document.getElementById("headerText").textContent=text;
+}
+
+
+/* =========================================================
+   HOME
+========================================================= */
+
+function goHome(){
+
+  state.currentPage="home";
+  state.idea="";
+  state.aiProject=null;
+
+  state.fashionEvent="";
+  state.fashionImages=[];
+  state.fashionQuestion="";
+  state.fashionResult=null;
+
+  setPage("home");
+
+  header("");
+
+  renderHome();
+
+}
+
+
+function renderHome(){
+
+  setPage("home");
+
+  header("");
+
+  render(`
+
+    <section class="home">
+
+      <div class="home-top">
+
+        <div class="eyebrow">
+          MAKE
+        </div>
+
+        <h1>
+          turn “I want to...”<br>
+          into “I did.”
+        </h1>
+
+        <p class="home-sub">
+          Pick what you want to do.
+          MAKE will guide you through it,
+          one step at a time.
+        </p>
+
+      </div>
+
+
+      <div class="option-heading">
+
+        <h2>
+          What are you making?
+        </h2>
+
+        <p>
+          Choose a starting point.
+        </p>
+
+      </div>
+
+
+      <div class="make-options">
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('painting')"
+        >
+
+          <div class="option-icon">🎨</div>
+
+          <div>
+
+            <div class="option-title">
+              Paint & Draw
+            </div>
+
+            <div class="option-description">
+              Turn an idea into something
+              you can draw or paint.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('spaces')"
+        >
+
+          <div class="option-icon">🪴</div>
+
+          <div>
+
+            <div class="option-title">
+              Spaces
+            </div>
+
+            <div class="option-description">
+              Redesign a room, desk,
+              corner or space.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('food')"
+        >
+
+          <div class="option-icon">🍰</div>
+
+          <div>
+
+            <div class="option-title">
+              Food
+            </div>
+
+            <div class="option-description">
+              Make something delicious
+              from scratch.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('photography')"
+        >
+
+          <div class="option-icon">📸</div>
+
+          <div>
+
+            <div class="option-title">
+              Photography
+            </div>
+
+            <div class="option-description">
+              Plan and create better
+              photos.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('diy')"
+        >
+
+          <div class="option-icon">✂️</div>
+
+          <div>
+
+            <div class="option-title">
+              DIY & Crafts
+            </div>
+
+            <div class="option-description">
+              Build, decorate or craft
+              something yourself.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('websites')"
+        >
+
+          <div class="option-icon">💻</div>
+
+          <div>
+
+            <div class="option-title">
+              Websites
+            </div>
+
+            <div class="option-description">
+              Turn your idea into
+              a real website.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="startCategory('fashion')"
+        >
+
+          <div class="option-icon">👗</div>
+
+          <div>
+
+            <div class="option-title">
+              Fashion Advisor
+            </div>
+
+            <div class="option-description">
+              Upload your fits and get
+              an honest outfit verdict.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+        <button
+          class="make-option"
+          onclick="customIdea()"
+        >
+
+          <div class="option-icon">✨</div>
+
+          <div>
+
+            <div class="option-title">
+              Something else
+            </div>
+
+            <div class="option-description">
+              Have another idea?
+              MAKE will figure it out.
+            </div>
+
+          </div>
+
+          <div class="option-arrow">
+            →
+          </div>
+
+        </button>
+
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+function startCategory(category){
+
+  if(category==="fashion"){
+
+    fashionHome();
+
+    return;
+  }
+
+  const names = {
+
+    painting:"Paint & Draw",
+
+    spaces:"Spaces",
+
+    food:"Food",
+
+    photography:"Photography",
+
+    diy:"DIY & Crafts",
+
+    websites:"Websites"
+
+  };
+
+  setPage("idea");
+
+  header(names[category] || "MAKE");
+
+  render(`
+
+    <section class="box">
+
+      <div class="eyebrow">
+        ${escapeHTML(
+          names[category] || "MAKE"
+        )}
+      </div>
+
+      <h2>
+        What do you want to make?
+      </h2>
+
+      <p class="lead">
+        Tell MAKE what you're imagining.
+        You don't need to know exactly
+        how to do it yet.
+      </p>
+
+      <div
+        style="
+          margin-top:28px;
+          display:flex;
+          gap:10px;
+          background:var(--card);
+          border:1px solid var(--line);
+          border-radius:18px;
+          padding:8px;
+          box-shadow:var(--shadow);
+        "
+      >
+
+        <input
+          id="categoryIdea"
+          autofocus
+          placeholder="I want to..."
+          style="
+            flex:1;
+            min-width:0;
+            border:0;
+            outline:0;
+            background:transparent;
+            padding:16px;
+          "
+          onkeydown="
+            if(event.key==='Enter')
+              submitCategoryIdea('${category}')
+          "
+        >
+
+        <button
+          class="primary"
+          onclick="
+            submitCategoryIdea('${category}')
+          "
+        >
+          →
+        </button>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          ← Back
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+function submitCategoryIdea(category){
+
+  const input =
+    document.getElementById("categoryIdea");
+
+  const idea =
+    input ? input.value.trim() : "";
+
+  if(!idea){
+
+    input?.focus();
+
+    return;
+  }
+
+  startProject(
+    idea
+  );
+
+}
+
+
+/* =========================================================
+   CUSTOM IDEA
+========================================================= */
+
+function customIdea(){
+
+  setPage("idea");
+
+  header("MAKE");
+
+  render(`
+
+    <section class="box">
+
+      <div class="eyebrow">
+        SOMETHING ELSE
+      </div>
+
+      <h2>
+        Tell me what you want to make.
+      </h2>
+
+      <p class="lead">
+        It doesn't have to fit a category.
+        Just explain it normally.
+      </p>
+
+      <div
+        style="
+          margin-top:28px;
+          display:flex;
+          gap:10px;
+          background:var(--card);
+          border:1px solid var(--line);
+          border-radius:18px;
+          padding:8px;
+          box-shadow:var(--shadow);
+        "
+      >
+
+        <input
+          id="customIdeaInput"
+          autofocus
+          placeholder="I want to..."
+          style="
+            flex:1;
+            min-width:0;
+            border:0;
+            outline:0;
+            background:transparent;
+            padding:16px;
+          "
+          onkeydown="
+            if(event.key==='Enter')
+              submitCustomIdea()
+          "
+        >
+
+        <button
+          class="primary"
+          onclick="submitCustomIdea()"
+        >
+          →
+        </button>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          ← Back
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+function submitCustomIdea(){
+
+  const input =
+    document.getElementById("customIdeaInput");
+
+  const idea =
+    input ? input.value.trim() : "";
+
+  if(!idea){
+
+    input?.focus();
+
+    return;
+  }
+
+  startProject(idea);
+
+}
+
+
+/* =========================================================
+   CREATE PROJECT
+========================================================= */
+
+async function startProject(idea){
+
+  state.idea=idea;
+
+  setPage("project-loading");
+
+  header("MAKE");
+
+  render(`
+
+    <div class="loading">
+
+      <div class="eyebrow">
+        MAKE
+      </div>
+
+      <h2>
+        Let's figure this out.
+      </h2>
+
+      <div class="spinner"></div>
+
+      <p class="lead" style="margin:auto">
+        Turning your idea into a project...
+      </p>
+
+    </div>
+
+  `);
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/create-project",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            idea:idea
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.detail ||
+        data.error ||
+        "MAKE couldn't create the project."
+      );
+
+    }
+
+    state.aiProject=data.project;
+
+    saveState();
+
+    showProject(
+      data.project
+    );
+
+  }catch(error){
+
+    showError(
+      "MAKE couldn't reach the AI.",
+      error.message,
+      startProject.bind(null,idea)
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   PROJECT
+========================================================= */
+
+function showProject(project){
+
+  setPage("project");
+
+  header(
+    project.title || "YOUR PROJECT"
+  );
+
+  render(`
+
+    <section class="box">
+
+      <div class="eyebrow">
+        ${escapeHTML(
+          project.category ||
+          "YOUR PROJECT"
+        )}
+      </div>
+
+      <h2>
+        ${escapeHTML(
+          project.title ||
+          "Your project"
+        )}
+      </h2>
+
+      <p class="lead">
+        ${escapeHTML(
+          project.theme ||
+          "I've got a plan. Let's start small."
+        )}
+      </p>
+
+      <div class="project-card">
+
+        <strong>
+          First step
+        </strong>
+
+        <p>
+          ${escapeHTML(
+            project.firstStep?.instruction ||
+            "Let's get started."
+          )}
+        </p>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="startStep()"
+        >
+          Show me Step 1 →
+        </button>
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          Start over
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   STEP
+========================================================= */
+
+function startStep(){
+
+  if(!state.aiProject){
+
+    goHome();
+
+    return;
+  }
+
+  state.aiProject.currentStep =
+    state.aiProject.firstStep;
+
+  state.aiProject.stepNumber=1;
+
+  saveState();
+
+  showStep(
+    state.aiProject.currentStep,
+    1
+  );
+
+}
+
+
+function showStep(step,number){
+
+  if(!state.aiProject){
+
+    goHome();
+
+    return;
+  }
+
+  setPage("step");
+
+  header(
+    state.aiProject.title ||
+    "YOUR PROJECT"
+  );
+
+  render(`
+
+    <section class="step">
+
+      <div class="stepbar">
+
+        <span>
+          Step ${number}
+        </span>
+
+        <span>
+          MAKE
+        </span>
+
+      </div>
+
+      <div class="eyebrow">
+        YOUR NEXT STEP
+      </div>
+
+      <h2>
+        ${escapeHTML(
+          step.title ||
+          "Your next step"
+        )}
+      </h2>
+
+      <p>
+        ${escapeHTML(
+          step.instruction ||
+          "Take the next small action."
+        )}
+      </p>
+
+      <div class="check-box">
+
+        <div class="check-label">
+          How you'll know you've done it
+        </div>
+
+        <div style="color:var(--muted)">
+          ${escapeHTML(
+            step.check ||
+            "The action is complete."
+          )}
+        </div>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="completeStep()"
+        >
+          I've done this →
+        </button>
+
+        <button
+          class="link"
+          onclick="stuck()"
+        >
+          I'm stuck
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   COMPLETE STEP
+========================================================= */
+
+async function completeStep(){
+
+  const project =
+    state.aiProject;
+
+  if(!project || !project.currentStep){
+
+    goHome();
+
+    return;
+  }
+
+  setPage("checking");
+
+  render(`
+
+    <div class="loading">
+
+      <div class="eyebrow">
+        CHECKING
+      </div>
+
+      <h2>
+        What comes next?
+      </h2>
+
+      <div class="spinner"></div>
+
+      <p class="lead" style="margin:auto">
+        MAKE is checking your progress.
+      </p>
+
+    </div>
+
+  `);
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/next-step",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify({
+            project:project,
+            completedStep:project.currentStep
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.detail ||
+        data.error ||
+        "MAKE couldn't continue."
+      );
+
+    }
+
+    if(data.complete===true){
+
+      showComplete(
+        data.message
+      );
+
+      return;
+    }
+
+    project.currentStep={
+
+      title:data.title,
+
+      instruction:data.instruction,
+
+      check:data.check
+
+    };
+
+    project.stepNumber =
+      (project.stepNumber || 1)+1;
+
+    saveState();
+
+    showStep(
+      project.currentStep,
+      project.stepNumber
+    );
+
+  }catch(error){
+
+    showError(
+      "MAKE couldn't continue the project.",
+      error.message,
+      completeStep
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   STUCK
+========================================================= */
+
+function stuck(){
+
+  setPage("stuck");
+
+  header("MAKE");
+
+  render(`
+
+    <section class="box">
+
+      <div class="eyebrow">
+        NO WORRIES
+      </div>
+
+      <h2>
+        What's getting in the way?
+      </h2>
+
+      <div class="event-grid">
+
+        <button
+          class="event"
+          onclick="backToStep()"
+        >
+          I don't understand this
+        </button>
+
+        <button
+          class="event"
+          onclick="backToStep()"
+        >
+          I don't know how to do it
+        </button>
+
+        <button
+          class="event"
+          onclick="backToStep()"
+        >
+          Mine doesn't look right
+        </button>
+
+        <button
+          class="event"
+          onclick="backToStep()"
+        >
+          I don't have what I need
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+function backToStep(){
+
+  if(
+    state.aiProject &&
+    state.aiProject.currentStep
+  ){
+
+    showStep(
+      state.aiProject.currentStep,
+      state.aiProject.stepNumber || 1
+    );
+
+  }else{
+
+    goHome();
+
+  }
+
+}
+
+
+/* =========================================================
+   COMPLETE
+========================================================= */
+
+function showComplete(message){
+
+  setPage("complete");
+
+  header("");
+
+  render(`
+
+    <section class="complete">
+
+      <div class="eyebrow">
+        PROJECT COMPLETE
+      </div>
+
+      <h1>
+        You made it! 🎉
+      </h1>
+
+      <div class="celebrate">
+        ✨
+      </div>
+
+      <p class="home-sub">
+        ${escapeHTML(
+          message ||
+          "Your project is complete. Enjoy what you made!"
+        )}
+      </p>
+
+      <div
+        class="actions"
+        style="justify-content:center"
+      >
+
+        <button
+          class="primary"
+          onclick="goHome()"
+        >
+          Make something else →
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(title,message,retry){
+
+  setPage("error");
+
+  header("MAKE");
+
+  render(`
+
+    <section class="box">
+
+      <div class="eyebrow">
+        SOMETHING WENT WRONG
+      </div>
+
+      <h2>
+        ${escapeHTML(title)}
+      </h2>
+
+      <p class="lead">
+        ${escapeHTML(message || "")}
+      </p>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="retry()"
+        >
+          Try again →
+        </button>
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          Back to MAKE
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   FASHION HOME
+========================================================= */
+
+function fashionHome(){
+
+  setPage("fashion");
+
+  header("FASHION ADVISOR");
+
+  render(`
+
+    <section class="fashion-box">
+
+      <div class="eyebrow">
+        FASHION ADVISOR 👗
+      </div>
+
+      <h2>
+        What's the vibe?
+      </h2>
+
+      <p class="lead">
+        Tell MAKE where you're going.
+        Then show us the fits you're choosing between.
+      </p>
+
+      <div class="event-grid">
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Formal event')"
+        >
+          🤵 Formal event
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Date night')"
+        >
+          ❤️ Date night
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Casual coffee or link-up')"
+        >
+          ☕ Coffee / casual
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Party')"
+        >
+          🎉 Party
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Work or interview')"
+        >
+          💼 Work / interview
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Dinner')"
+        >
+          🍽️ Dinner
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Travel day')"
+        >
+          ✈️ Travel day
+        </button>
+
+        <button
+          class="event"
+          onclick="chooseFashionEvent('Everyday')"
+        >
+          👟 Everyday
+        </button>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          ← Back to MAKE
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   CHOOSE FASHION EVENT
+========================================================= */
+
+function chooseFashionEvent(event){
+
+  state.fashionEvent=event;
+
+  state.fashionImages=[];
+
+  state.fashionQuestion="";
+
+  state.fashionResult=null;
+
+  saveState();
+
+  fashionUpload();
+
+}
+
+
+/* =========================================================
+   FASHION UPLOAD
+========================================================= */
+
+function fashionUpload(){
+
+  if(!state.fashionEvent){
+
+    fashionHome();
+
+    return;
+  }
+
+  setPage("fashionUpload");
+
+  header("FASHION ADVISOR");
+
+  render(`
+
+    <section class="fashion-box">
+
+      <div class="eyebrow">
+        ${escapeHTML(state.fashionEvent)}
+      </div>
+
+      <h2>
+        Show me the fits 👀
+      </h2>
+
+      <p class="lead">
+        Upload the outfits you're deciding between.
+        You can upload full outfits or individual clothing pieces.
+      </p>
+
+      <div
+        id="fashionPreviews"
+        class="upload-grid"
+      ></div>
+
+      <label class="add-photo">
+
+        <span>
+          + Add outfit / clothing photo
+        </span>
+
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onchange="addFashionImages(event)"
+        >
+
+      </label>
+
+      <textarea
+        id="fashionQuestion"
+        placeholder="Anything specific? e.g. Which one works better for this event?"
+      >${escapeHTML(
+        state.fashionQuestion
+      )}</textarea>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="getFashionAdvice()"
+        >
+          Check my fits →
+        </button>
+
+        <button
+          class="link"
+          onclick="fashionHome()"
+        >
+          Change event
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+  updateFashionPreviews();
+
+}
+
+
+/* =========================================================
+   ADD FASHION IMAGES
+========================================================= */
+
+async function addFashionImages(event){
+
+  const files =
+    Array.from(event.target.files || []);
+
+  for(const file of files){
+
+    if(!file.type.startsWith("image/"))
+      continue;
+
+    try{
+
+      const data =
+        await fileToDataURL(file);
+
+      state.fashionImages.push({
+        name:file.name,
+        data:data
+      });
+
+    }catch(error){
+
+      console.log(error);
+
+    }
+
+  }
+
+  saveState();
+
+  updateFashionPreviews();
+
+}
+
+
+/* =========================================================
+   FILE READER
+========================================================= */
+
+function fileToDataURL(file){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        () => resolve(reader.result);
+
+      reader.onerror =
+        reject;
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   FASHION PREVIEWS
+========================================================= */
+
+function updateFashionPreviews(){
+
+  const container =
+    document.getElementById(
+      "fashionPreviews"
+    );
+
+  if(!container)
+    return;
+
+  container.innerHTML =
+    state.fashionImages
+      .map(
+        (image,index)=>`
+
+          <div class="preview">
+
+            <img
+              src="${image.data}"
+              alt="Outfit photo"
+            >
+
+            <button
+              class="preview-remove"
+              onclick="removeFashionImage(${index})"
+            >
+              ×
+            </button>
+
+          </div>
+
+        `
+      )
+      .join("");
+
+}
+
+
+/* =========================================================
+   REMOVE IMAGE
+========================================================= */
+
+function removeFashionImage(index){
+
+  state.fashionImages.splice(
+    index,
+    1
+  );
+
+  saveState();
+
+  updateFashionPreviews();
+
+}
+
+
+/* =========================================================
+   GET FASHION ADVICE
+========================================================= */
+
+async function getFashionAdvice(){
+
+  if(!state.fashionImages.length){
+
+    alert(
+      "Upload at least one outfit photo first."
+    );
+
+    return;
+  }
+
+  const question =
+    document.getElementById(
+      "fashionQuestion"
+    );
+
+  state.fashionQuestion =
+    question
+      ? question.value.trim()
+      : "";
+
+  saveState();
+
+  setPage("fashionLoading");
+
+  render(`
+
+    <div class="loading">
+
+      <div class="eyebrow">
+        FASHION ADVISOR
+      </div>
+
+      <h2>
+        Let me compare the fits.
+      </h2>
+
+      <div class="spinner"></div>
+
+      <p class="lead" style="margin:auto">
+        Looking at the actual outfits and the event...
+      </p>
+
+    </div>
+
+  `);
+
+  try{
+
+    const response =
+      await fetch(
+        "/api/fashion-advice",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json"
+          },
+
+          body:JSON.stringify({
+
+            event:
+              state.fashionEvent,
+
+            question:
+              state.fashionQuestion,
+
+            images:
+              state.fashionImages
+
+          })
+
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if(!response.ok){
+
+      throw new Error(
+        data.detail ||
+        data.error ||
+        "MAKE couldn't analyse the outfits."
+      );
+
+    }
+
+    state.fashionResult=data;
+
+    saveState();
+
+    showFashionResult(data);
+
+  }catch(error){
+
+    showError(
+      "MAKE couldn't check the fits 😭",
+      error.message,
+      getFashionAdvice
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   FASHION RESULT
+========================================================= */
+
+function showFashionResult(data){
+
+  if(!data){
+
+    fashionHome();
+
+    return;
+  }
+
+  setPage("fashionResult");
+
+  header("FASHION ADVISOR");
+
+  let reasons="";
+
+  if(Array.isArray(data.why)){
+
+    reasons =
+      data.why
+        .map(
+          reason =>
+            `<li>${escapeHTML(reason)}</li>`
+        )
+        .join("");
+
+  }
+
+  render(`
+
+    <section class="fashion-box">
+
+      <div class="eyebrow">
+        ${escapeHTML(
+          state.fashionEvent
+        )}
+      </div>
+
+      <h2>
+        ${escapeHTML(
+          data.verdict ||
+          "Here's my verdict 👀"
+        )}
+      </h2>
+
+      <div class="verdict">
+
+        ${
+          data.winner
+            ? `
+              <h3>
+                🏆 My pick:
+                ${escapeHTML(data.winner)}
+              </h3>
+            `
+            : ""
+        }
+
+        <p>
+          ${escapeHTML(
+            data.advice || ""
+          )}
+        </p>
+
+        ${
+          reasons
+            ? `<ul>${reasons}</ul>`
+            : ""
+        }
+
+        ${
+          data.tweak
+            ? `
+              <div class="tweak">
+                <strong>One tweak:</strong><br>
+                ${escapeHTML(data.tweak)}
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="primary"
+          onclick="fashionUpload()"
+        >
+          Try more fits →
+        </button>
+
+        <button
+          class="secondary"
+          onclick="fashionHome()"
+        >
+          Different event
+        </button>
+
+        <button
+          class="link"
+          onclick="goHome()"
+        >
+          Back to MAKE
+        </button>
+
+      </div>
+
+    </section>
+
+  `);
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHTML(value){
+
+  return String(
+    value == null ? "" : value
+  )
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;")
+  .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   RESTORE AFTER REFRESH
+========================================================= */
+
+function restorePage(){
+
+  loadState();
+
+  const page =
+    savedPage();
+
+  if(page==="fashion"){
+
+    fashionHome();
+
+    return;
+  }
+
+  if(page==="fashionUpload"){
+
+    if(state.fashionEvent)
+      fashionUpload();
+    else
+      fashionHome();
+
+    return;
+  }
+
+  if(page==="fashionResult"){
+
+    if(state.fashionResult)
+      showFashionResult(
+        state.fashionResult
+      );
+    else
+      fashionHome();
+
+    return;
+  }
+
+  if(
+    page==="project" &&
+    state.aiProject
+  ){
+
+    showProject(
+      state.aiProject
+    );
+
+    return;
+  }
+
+  if(
+    page==="step" &&
+    state.aiProject &&
+    state.aiProject.currentStep
+  ){
+
+    showStep(
+      state.aiProject.currentStep,
+      state.aiProject.stepNumber || 1
+    );
+
+    return;
+  }
+
+  if(
+    page==="complete"
+  ){
+
+    showComplete(
+      "Your project is complete. Enjoy what you made!"
+    );
+
+    return;
+  }
+
+  /*
+    If the browser was refreshed while
+    Gemini was actively generating something,
+    the request cannot resume.
+    Return to the closest useful page.
+  */
+
+  if(
+    page==="project-loading" &&
+    state.idea
+  ){
+
+    startProject(
+      state.idea
+    );
+
+    return;
+  }
+
+  if(
+    page==="fashionLoading" &&
+    state.fashionEvent
+  ){
+
+    fashionUpload();
+
+    return;
+  }
+
+  renderHome();
+
+}
+
+
+/* =========================================================
+   SAVE BEFORE LEAVING
+========================================================= */
+
+window.addEventListener(
+  "beforeunload",
+  saveState
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadState();
+
+restorePage();
+
+</script>
+
+</body>
+</html>
