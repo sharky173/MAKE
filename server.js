@@ -16,7 +16,7 @@ const ai = new GoogleGenAI({
 });
 
 app.use(express.json({ limit: "15mb" }));
-app.use(express.static(path.join(__dirname, "../frontend")));
+app.use(express.static(path.join(__dirname));
 
 /*
   CURRENT GEMINI MODELS
@@ -475,7 +475,7 @@ app.get("*", function (req, res) {
   res.sendFile(
     path.join(
       __dirname,
-      "../frontend/index.html"
+      "index.html"
     )
   );
 });
