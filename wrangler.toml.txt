@@ -1,0 +1,6 @@
+name = "make"
+main = "backend/server.js"
+compatibility_date = "2026-09-02"
+
+[assets]
+directory = "./frontend"
