@@ -1,29 +1,3 @@
-const express = require("express");
-const path = require("path");
-const { GoogleGenAI } = require("@google/genai");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const API_KEY = process.env.GEMINI_API_KEY;
-
-if (!API_KEY) {
-  console.error("ERROR: GEMINI_API_KEY is not set.");
-}
-
-const ai = new GoogleGenAI({
-  apiKey: API_KEY
-});
-
-app.use(express.json({ limit: "15mb" }));
-app.use(express.static(path.join(__dirname));
-
-/*
-  CURRENT GEMINI MODELS
-
-  These are the models we use.
-  Do NOT change these to gemini-2.5-flash or gemini-2.5-flash-lite.
-*/
 const MODELS = [
   "gemini-3.6-flash",
   "gemini-3.5-flash",
@@ -31,62 +5,70 @@ const MODELS = [
 ];
 
 /* =========================================================
-   GENERIC JSON GENERATOR
+   GEMINI
    ========================================================= */
 
-async function generateJSON(prompt, contentsOverride) {
+async function generateJSON(apiKey, prompt, contentsOverride = null) {
   const errors = [];
 
   for (const model of MODELS) {
     try {
-      console.log("Trying Gemini model: " + model);
-
-      const contents = contentsOverride || prompt;
-
-      const response = await ai.models.generateContent({
-        model: model,
-        contents: contents,
-        config: {
-          responseMimeType: "application/json"
+      const contents = contentsOverride || [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
         }
-      });
+      ];
 
-      if (!response || !response.text) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents,
+            generationConfig: {
+              responseMimeType: "application/json"
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error?.message || `HTTP ${response.status}`
+        );
+      }
+
+      const text =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!text) {
         throw new Error("Gemini returned an empty response.");
       }
 
-      console.log("Gemini model worked: " + model);
-
-      return JSON.parse(response.text);
+      return JSON.parse(text);
 
     } catch (error) {
-      const message =
-        error && error.message
-          ? error.message
-          : String(error);
-
-      console.error(
-        "Gemini model failed: " +
-        model +
-        " - " +
-        message
+      errors.push(
+        `${model}: ${error?.message || String(error)}`
       );
-
-      errors.push(model + ": " + message);
     }
   }
 
-  throw new Error(
-    "All Gemini models failed.\n" +
-    errors.join("\n")
-  );
+  throw new Error(errors.join("\n"));
 }
+
 
 /* =========================================================
    CREATE PROJECT
    ========================================================= */
 
-async function createProject(idea) {
+async function createProject(apiKey, idea) {
   const prompt = [
     "You are MAKE, a patient project teacher for complete beginners.",
     "",
@@ -118,380 +100,317 @@ async function createProject(idea) {
     "- The goal is to actually help them finish the project."
   ].join("\n");
 
-  return generateJSON(prompt);
+  return generateJSON(apiKey, prompt);
 }
 
-app.post("/api/create-project", async function (req, res) {
-  try {
-    const idea = String(
-      req.body && req.body.idea
-        ? req.body.idea
-        : ""
-    ).trim();
-
-    if (!idea) {
-      return res.status(400).json({
-        error: "Please tell MAKE what you want to make."
-      });
-    }
-
-    const project = await createProject(idea);
-
-    return res.json({
-      project: project
-    });
-
-  } catch (error) {
-    console.error("CREATE PROJECT ERROR:", error);
-
-    return res.status(500).json({
-      error: "MAKE couldn't reach the AI.",
-      detail:
-        error && error.message
-          ? error.message
-          : String(error)
-    });
-  }
-});
 
 /* =========================================================
    NEXT STEP
    ========================================================= */
 
-app.post("/api/next-step", async function (req, res) {
-  try {
-    const project =
-      req.body && req.body.project
-        ? req.body.project
-        : null;
+async function nextStep(apiKey, project, completedStep) {
+  const prompt = [
+    "You are MAKE, a patient teacher helping a complete beginner finish a project.",
+    "",
+    "PROJECT:",
+    JSON.stringify(project),
+    "",
+    "THE USER JUST COMPLETED:",
+    JSON.stringify(completedStep),
+    "",
+    "Decide whether the project is genuinely complete.",
+    "",
+    "IMPORTANT:",
+    "- Do NOT invent unnecessary extra tasks.",
+    "- Do NOT create pointless tiny steps.",
+    "- Do NOT make the user continue just for the sake of continuing.",
+    "- Only give another step if it is actually necessary.",
+    "- If the user can reasonably say 'I made it', mark the project complete.",
+    "",
+    "Return ONLY valid JSON.",
+    "",
+    "If complete:",
+    "{",
+    '  "complete": true,',
+    '  "message": "short friendly completion message"',
+    "}",
+    "",
+    "If NOT complete:",
+    "{",
+    '  "complete": false,',
+    '  "title": "short meaningful step title",',
+    '  "instruction": "one clear meaningful action",',
+    '  "check": "how the user knows this step is complete"',
+    "}",
+    "",
+    "Rules:",
+    "- Give exactly ONE meaningful next step.",
+    "- Never repeat the completed step.",
+    "- Keep it beginner-friendly."
+  ].join("\n");
 
-    const completedStep =
-      req.body && req.body.completedStep
-        ? req.body.completedStep
-        : null;
+  return generateJSON(apiKey, prompt);
+}
 
-    if (!project || !completedStep) {
-      return res.status(400).json({
-        error: "Missing project or completed step."
-      });
-    }
-
-    const prompt = [
-      "You are MAKE, a patient teacher helping a complete beginner finish a project.",
-      "",
-      "PROJECT:",
-      JSON.stringify(project),
-      "",
-      "THE USER JUST COMPLETED:",
-      JSON.stringify(completedStep),
-      "",
-      "Decide whether the project is genuinely complete.",
-      "",
-      "IMPORTANT:",
-      "- Do NOT invent unnecessary extra tasks.",
-      "- Do NOT create pointless tiny steps.",
-      "- Do NOT make the user continue just for the sake of continuing.",
-      "- Only give another step if it is actually necessary.",
-      "- If the user can reasonably say 'I made it', mark the project complete.",
-      "",
-      "Return ONLY valid JSON.",
-      "",
-      "If complete:",
-      "{",
-      '  "complete": true,',
-      '  "message": "short friendly completion message"',
-      "}",
-      "",
-      "If NOT complete:",
-      "{",
-      '  "complete": false,',
-      '  "title": "short meaningful step title",',
-      '  "instruction": "one clear meaningful action",',
-      '  "check": "how the user knows this step is complete"',
-      "}",
-      "",
-      "Rules:",
-      "- Give exactly ONE meaningful next step.",
-      "- Never repeat the completed step.",
-      "- Keep it beginner-friendly."
-    ].join("\n");
-
-    const result = await generateJSON(prompt);
-
-    return res.json(result);
-
-  } catch (error) {
-    console.error("NEXT STEP ERROR:", error);
-
-    return res.status(500).json({
-      error: "MAKE couldn't create the next step.",
-      detail:
-        error && error.message
-          ? error.message
-          : String(error)
-    });
-  }
-});
 
 /* =========================================================
    FASHION ADVISOR
    ========================================================= */
 
-app.post("/api/fashion-advice", async function (req, res) {
-  try {
-    const event = String(
-      req.body && req.body.event
-        ? req.body.event
-        : ""
-    ).trim();
+async function fashionAdvice(apiKey, event, question, images) {
+  const imageParts = [];
 
-    const question = String(
-      req.body && req.body.question
-        ? req.body.question
-        : ""
-    ).trim();
+  for (const image of images) {
+    let imageData = "";
 
-    const images =
-      req.body && Array.isArray(req.body.images)
-        ? req.body.images
-        : [];
-
-    console.log("");
-    console.log("==============================");
-    console.log("FASHION REQUEST");
-    console.log("==============================");
-    console.log("Event: " + event);
-    console.log("Outfits received: " + images.length);
-
-    if (!event) {
-      return res.status(400).json({
-        error: "Tell MAKE what kind of event you're going to."
-      });
+    if (typeof image === "string") {
+      imageData = image;
+    } else if (image && typeof image.data === "string") {
+      imageData = image.data;
     }
 
-    if (images.length === 0) {
-      return res.status(400).json({
-        error: "Upload at least one outfit photo."
-      });
-    }
-
-    /* -----------------------------------------
-       Convert uploaded images into Gemini parts
-       ----------------------------------------- */
-
-    const imageParts = [];
-
-    for (let i = 0; i < images.length; i++) {
-      const image = images[i];
-
-      let imageData = "";
-
-      if (typeof image === "string") {
-        imageData = image;
-      } else if (
-        image &&
-        typeof image.data === "string"
-      ) {
-        imageData = image.data;
-      }
-
-      const matches = imageData.match(
-        /^data:(image\/[^;]+);base64,(.+)$/
-      );
-
-      if (matches) {
-        imageParts.push({
-          inlineData: {
-            mimeType: matches[1],
-            data: matches[2]
-          }
-        });
-      }
-    }
-
-    console.log(
-      "Readable images: " +
-      imageParts.length
+    const matches = imageData.match(
+      /^data:(image\/[^;]+);base64,(.+)$/
     );
 
-    if (imageParts.length === 0) {
-      return res.status(400).json({
-        error: "MAKE couldn't read those outfit photos."
+    if (matches) {
+      imageParts.push({
+        inlineData: {
+          mimeType: matches[1],
+          data: matches[2]
+        }
       });
     }
+  }
 
-    /* -----------------------------------------
-       Fashion analysis prompt
-       ----------------------------------------- */
+  if (imageParts.length === 0) {
+    throw new Error("MAKE couldn't read those outfit photos.");
+  }
 
-    const prompt = [
-      "You are MAKE's fashion advisor.",
-      "",
-      "Your job is to objectively compare the clothing shown in the uploaded images and decide which option works best for the user's event.",
-      "",
-      "EVENT:",
-      event,
-      "",
-      "USER'S QUESTION:",
-      question ||
-        "Which outfit works best for this event?",
-      "",
-      "IMPORTANT IMAGE ANALYSIS RULES:",
-      "- Carefully inspect every uploaded image.",
-      "- Identify each visible outfit or clothing option separately.",
-      "- Only discuss clothing and details that are actually visible.",
-      "- Do not invent brands, colours, accessories or clothing.",
-      "- If an image shows a complete outfit, judge the complete outfit.",
-      "- If an image shows separate clothing items, judge how they could work together.",
-      "",
-      "JUDGING CRITERIA:",
-      "1. Suitability for the event.",
-      "2. Formality level.",
-      "3. Colour coordination.",
-      "4. Overall outfit coordination.",
-      "5. Proportions and silhouette.",
-      "6. Whether the pieces work together.",
-      "7. Overall style and vibe.",
-      "",
-      "MOST IMPORTANT:",
-      "Do not simply choose the first outfit.",
-      "Actually compare all visible options.",
-      "If one option is clearly stronger, clearly name it.",
-      "If the difference is small, say that honestly.",
-      "",
-      "Use natural Gen Z language, but keep it useful and not cringe.",
-      "",
-      "Return ONLY valid JSON in exactly this format:",
-      "{",
-      '  "winner": "the best outfit or option",',
-      '  "verdict": "short overall verdict",',
-      '  "advice": "clear explanation of the decision",',
-      '  "why": [',
-      '    "specific reason 1",',
-      '    "specific reason 2",',
-      '    "specific reason 3"',
-      "  ],",
-      '  "tweak": "one optional improvement",',
-      '  "confidence": "high|medium|low"',
-      "}",
-      "",
-      "The reasons MUST refer to actual visible clothing details.",
-      "Do not judge the user's body or attractiveness."
-    ].join("\n");
+  const prompt = [
+    "You are MAKE's fashion advisor.",
+    "",
+    "Your job is to objectively compare the clothing shown in the uploaded images and decide which option works best for the user's event.",
+    "",
+    "EVENT:",
+    event,
+    "",
+    "USER'S QUESTION:",
+    question || "Which outfit works best for this event?",
+    "",
+    "IMPORTANT IMAGE ANALYSIS RULES:",
+    "- Carefully inspect every uploaded image.",
+    "- Identify each visible outfit or clothing option separately.",
+    "- Only discuss clothing and details that are actually visible.",
+    "- Do not invent brands, colours, accessories or clothing.",
+    "- If an image shows a complete outfit, judge the complete outfit.",
+    "- If an image shows separate clothing items, judge how they could work together.",
+    "",
+    "JUDGING CRITERIA:",
+    "1. Suitability for the event.",
+    "2. Formality level.",
+    "3. Colour coordination.",
+    "4. Overall outfit coordination.",
+    "5. Proportions and silhouette.",
+    "6. Whether the pieces work together.",
+    "7. Overall style and vibe.",
+    "",
+    "MOST IMPORTANT:",
+    "Do not simply choose the first outfit.",
+    "Actually compare all visible options.",
+    "If one option is clearly stronger, clearly name it.",
+    "If the difference is small, say that honestly.",
+    "",
+    "Use natural Gen Z language, but keep it useful and not cringe.",
+    "",
+    "Return ONLY valid JSON in exactly this format:",
+    "{",
+    '  "winner": "the best outfit or option",',
+    '  "verdict": "short overall verdict",',
+    '  "advice": "clear explanation of the decision",',
+    '  "why": ["specific reason 1", "specific reason 2", "specific reason 3"],',
+    '  "tweak": "one optional improvement",',
+    '  "confidence": "high|medium|low"',
+    "}",
+    "",
+    "The reasons MUST refer to actual visible clothing details.",
+    "Do not judge the user's body or attractiveness."
+  ].join("\n");
 
-    const contents = [
+  const contents = [
+    {
+      role: "user",
+      parts: [
+        { text: prompt },
+        ...imageParts
+      ]
+    }
+  ];
+
+  return generateJSON(apiKey, null, contents);
+}
+
+
+/* =========================================================
+   API ROUTER
+   ========================================================= */
+
+async function handleAPI(request, env) {
+  if (!env.GEMINI_API_KEY) {
+    return Response.json(
       {
-        text: prompt
-      }
-    ].concat(imageParts);
+        error: "GEMINI_API_KEY is not configured."
+      },
+      { status: 500 }
+    );
+  }
 
-    const errors = [];
+  const url = new URL(request.url);
 
-    /* -----------------------------------------
-       Try current models
-       ----------------------------------------- */
+  let body = {};
 
-    for (const model of MODELS) {
-      try {
-        console.log(
-          "Trying fashion model: " +
-          model
-        );
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { error: "Invalid JSON request." },
+      { status: 400 }
+    );
+  }
 
-        const response =
-          await ai.models.generateContent({
-            model: model,
-            contents: contents,
-            config: {
-              responseMimeType: "application/json"
-            }
-          });
+  try {
 
-        if (!response || !response.text) {
-          throw new Error(
-            "Gemini returned an empty response."
-          );
-        }
+    /* CREATE PROJECT */
 
-        const advice =
-          JSON.parse(response.text);
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/create-project"
+    ) {
+      const idea = String(body.idea || "").trim();
 
-        console.log(
-          "Fashion model worked: " +
-          model
-        );
-
-        console.log(
-          "Winner: " +
-          advice.winner
-        );
-
-        return res.json(advice);
-
-      } catch (error) {
-        const message =
-          error && error.message
-            ? error.message
-            : String(error);
-
-        console.error(
-          "Fashion model failed: " +
-          model
-        );
-
-        console.error(message);
-
-        errors.push(
-          model + ": " + message
+      if (!idea) {
+        return Response.json(
+          {
+            error: "Please tell MAKE what you want to make."
+          },
+          { status: 400 }
         );
       }
+
+      const project = await createProject(
+        env.GEMINI_API_KEY,
+        idea
+      );
+
+      return Response.json({ project });
     }
 
-    throw new Error(
-      "All fashion models failed.\n" +
-      errors.join("\n")
+
+    /* NEXT STEP */
+
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/next-step"
+    ) {
+      if (!body.project || !body.completedStep) {
+        return Response.json(
+          {
+            error: "Missing project or completed step."
+          },
+          { status: 400 }
+        );
+      }
+
+      const result = await nextStep(
+        env.GEMINI_API_KEY,
+        body.project,
+        body.completedStep
+      );
+
+      return Response.json(result);
+    }
+
+
+    /* FASHION */
+
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/fashion-advice"
+    ) {
+      const event = String(body.event || "").trim();
+      const question = String(body.question || "").trim();
+
+      const images = Array.isArray(body.images)
+        ? body.images
+        : [];
+
+      if (!event) {
+        return Response.json(
+          {
+            error:
+              "Tell MAKE what kind of event you're going to."
+          },
+          { status: 400 }
+        );
+      }
+
+      if (images.length === 0) {
+        return Response.json(
+          {
+            error:
+              "Upload at least one outfit photo."
+          },
+          { status: 400 }
+        );
+      }
+
+      const result = await fashionAdvice(
+        env.GEMINI_API_KEY,
+        event,
+        question,
+        images
+      );
+
+      return Response.json(result);
+    }
+
+
+    return Response.json(
+      { error: "API route not found." },
+      { status: 404 }
     );
 
   } catch (error) {
-    console.error("");
-    console.error("FASHION ERROR:");
     console.error(error);
 
-    return res.status(500).json({
-      error: "MAKE couldn't check the fits.",
-      detail:
-        error && error.message
-          ? error.message
-          : String(error)
-    });
+    return Response.json(
+      {
+        error: "MAKE couldn't reach the AI.",
+        detail: error?.message || String(error)
+      },
+      { status: 500 }
+    );
   }
-});
+}
+
 
 /* =========================================================
-   FRONTEND
+   CLOUDFLARE WORKER
    ========================================================= */
 
-app.get("*", function (req, res) {
-  res.sendFile(
-    path.join(
-      __dirname,
-      "index.html"
-    )
-  );
-});
+export default {
+  async fetch(request, env) {
 
-/* =========================================================
-   START SERVER
-   ========================================================= */
+    const url = new URL(request.url);
 
-app.listen(PORT, function () {
-  console.log("");
-  console.log("==============================");
-  console.log("MAKE SERVER FILE LOADED");
-  console.log(
-    "MAKE running at http://localhost:" +
-    PORT
-  );
-  console.log("==============================");
-  console.log("");
-});
+    /* API requests go to Gemini backend */
+
+    if (url.pathname.startsWith("/api/")) {
+      return handleAPI(request, env);
+    }
+
+    /* Everything else comes from public/ */
+
+    return env.ASSETS.fetch(request);
+  }
+};
